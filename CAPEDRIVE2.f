@@ -18,12 +18,14 @@
       real,    dimension(LVLS,ILEN,JLEN),intent(in) :: TARR,QARR,PARR,HARR  !arrays from args
       real,    dimension(ILEN,JLEN),intent(in) :: MLCAPE,SFCARR
       real,    dimension(ILEN,JLEN),intent(inout) :: CAPE3,LSI    !output arrays
-      real,    dimension(ILEN,JLEN) :: PLCL,TLCL,HLCL,MXLTMP    !LCL Prs,LCL tmp, LCL hgt, mltmp
+      real,    dimension(ILEN,JLEN) :: HLCL,MXLTMP    !LCL Prs,LCL tmp, LCL hgt, mltmp
       real,    dimension(LVLS,ILEN,JLEN) :: TPAR,TKPAR  ! Parcel temp, Parc mx tmp
-	  real,    dimension(50,318)  ::  TBLLCL
-      real                :: STPRS,MXTMP,MXQ,MR,Y,DJ,DI     !Stop pressure, Mix tmp add,
-	  real,    parameter  ::  A=0.38,B=17.2693882,C=35.86,TFR=273.15
-      integer,    :: MXLVLS,LCL00,LCL10,LCL01,LCL11
+      real,    dimension(50,318)  ::  TBLLCL
+      real,    dimension(100,500) ::  TBLLR
+      real                :: STPRS,MXTMP,MXQ,MR,Y,DJ,DI,I1,I2,PLCL,TLCL,P1,P2,T1,T2,CAPET,LSIT,LFCH,ELH,LSIR,TK,ES,WS,TV,LAT,PA,PB,DENS
+      real,    parameter  ::  A=0.38,B=17.2693882,C=35.86,TFR=273.15
+      integer,    :: MXLVLS,LCL00,LCL10,LCL01,LCL11,I,J,L,LR00,LR01,LR10,LR11
+
 
       !Init calculated arrays
 !$omp  parallel do private (L,I,J)
@@ -31,9 +33,7 @@
         DO J=1,JLEN
           CAPE3(I,J)   = 0
           LSI(I,J)     = 0
-	  TLCL(I,J)    = 0
           HLCL(I,J)    = 0
-          PLCL(I,J)    = 0
 	  MXLTMP(I,J)  = 0
           DO L=1,LVLS
             TPAR(L,I,J) = 0
@@ -89,7 +89,7 @@
       !Calculate mixed layer parcel T and Q
       
 	  
-!$omp  parallel do private (i,j,l,stprs,mxtmp,mxq,mxlvls,lcl00,lcl10,lcl01,clc11,di,dj,i1,i2,part,p1,t1,lr00,lr01,lr10,lr11,capet,lsit,lfch,lfct,lsir)
+!$omp  parallel do private (i,j,l,stprs,mxtmp,mxq,mxlvls,lcl00,lcl10,lcl01,clc11,di,dj,i1,i2,tlcl,plcl,p1,p2,t1,t2,lr00,lr01,lr10,lr11,capet,lsit,lfch,elh,lsir)
       DO I=1,ILEN
         DO J=1,JLEN
           IF (MLCAPE(I,J) .LT. 5) THEN
@@ -121,8 +121,8 @@
 	  DJ = MXTMP-REAL(FLOOR(MXTMP))
 	  I1 = LCL00+(LCL10-LCL00)*DI
 	  I2 = LCL01+(LCL11-LCL01)*DI
-	  TLCL(I,J) = I1+(I2-I1)*DJ
-	  PLCL(I,J) = 100000 * ((TLCL(I,J)/MXTMP)**3.48)
+	  TLCL = I1+(I2-I1)*DJ
+	  PLCL = 100000 * ((TLCL(I,J)/MXTMP)**3.48)
 	  
 	  
 	  !Elevate parcel moist adiabatically from LCL
@@ -155,39 +155,29 @@
 	      
 	      IF (T2 > TARR(L,I,J) .AND. T1 > TARR(L-1,I,J))   !whole layer is unstable)
 	      
-	        CAPET=CAPET+((T1-TARR(L-1,I,J)/T1+(T2-TARR(L,I,J))/T2)/2*9.81*(HARR(L,I,J)-HARR(L-1,I,J))
+	        CAPET=CAPET+((T1-TARR(L-1,I,J)/T1+(T2-TARR(L,I,J))/T2)/2*9.81*(HARR(L,I,J)-HARR(L-1,I,J))  !Calculate CAPE
 		
-	      ELSE IF(T2 > TARR(L,I,J))              !LFC is whitin layer, 
-	       
-		! Get LFC height
-		LFCH=(TARR(L-1,I,J)-T1)/((TARR(L-1,I,J)-T1)+(T2-TARR(L,I,J)))*(HARR(L,I,J)-HARR(L-1,I,J))+HARR(L-1,I,J)
+	      ELSE IF(T2 > TARR(L,I,J))              !LFC is whitin layer,
+	      
+		LFCH=(TARR(L-1,I,J)-T1)/((TARR(L-1,I,J)-T1)+(T2-TARR(L,I,J)))*(HARR(L,I,J)-HARR(L-1,I,J))+HARR(L-1,I,J)   ! Get LFC height
+		CAPET=CAPET+((T2-TARR(L,I,J))/TARR(L,I,J)/2*9.81*(HARR(L,I,J)-LFCH))! Then calculate CAPE
 		
-		! Then calculate CAPE
-		CAPET=CAPET+((T2-TARR(L,I,J))/TARR(L,I,J)/2*9.81*(HARR(L,I,J)-LFCH))
-		
-		! Calculate LSI
-		IF(LSIT<(TARR(L-1,I,J)-T1)) THEN
+		IF(LSIT<(TARR(L-1,I,J)-T1)) THEN    ! Calculate LSI
 		  LSIT=TARR(L-1,I,J)-T1
 		END IF
 		
 	      ELSE IF (T2 < TARR(L,I,J) .AND. T1 > TARR(L-1,I,J))    ! not expected but catched equilibrium level
 	        
-		! Get EL height
+		ELH=(T1-TARR(L-1,I,J))/((T1-TARR(L-1,I,J))+(TARR(L,I,J)-T2))*(HARR(L,I,J)-HARR(L-1,I,J))+HARR(L-1,I,J)  ! Get EL height
+		CAPET=CAPET+((T1-TARR(L-1,I,J))/TARR(L-1,I,J)/2*9.81*(ELH-HARR(L,I,J)))   ! Then calculate CAPE
 		
-		ELH=(T1-TARR(L-1,I,J))/((T1-TARR(L-1,I,J))+(TARR(L,I,J)-T2))*(HARR(L,I,J)-HARR(L-1,I,J))+HARR(L-1,I,J)
-		
-		! Then calculate CAPE
-		CAPET=CAPET+((T1-TARR(L-1,I,J))/TARR(L-1,I,J)/2*9.81*(ELH-HARR(L,I,J)))
-		
-		! Then LSI
-		IF(LSIT<(TARR(L,I,J)-T2)) THEN
+		IF(LSIT<(TARR(L,I,J)-T2)) THEN   ! Then LSI
 		  LSIT=TARR(L,I,J)-T2
 		END IF
 		
 	      ELSE         !Only possibility here is layer is fully stable
 	        
-		LSIR=MIN((TARR(L-1,I,J)-T1),(TARR(L,I,J)-T2)
-
+		LSIR=MIN((TARR(L-1,I,J)-T1),(TARR(L,I,J)-T2)      !Only need to calculate LSI
 		IF(LSIT<LSIR) THEN
 		  LSIT=LSIR
 		END IF
@@ -199,7 +189,7 @@
 	    
 	    
 	    
-	    
+	    P1=P2
 	  END DO
 	  
 	  CAPE3(I,J)=CAPET
@@ -209,13 +199,11 @@
 	  
         END DO
       END DO
-
-      !Calculate LCL atributes
       
-!$omp  parallel do private
+      
+      RETURN
+      END
 
-      DO I=1,ILEN
-        DO J=1,JLEN      
 
 
 
