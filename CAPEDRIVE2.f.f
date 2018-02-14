@@ -26,7 +26,7 @@
       integer,    :: MXLVLS,LCL00,LCL10,LCL01,LCL11
 
       !Init calculated arrays
-!$omp  parallel do private (i,j,l)
+!$omp  parallel do private (L,I,J)
       DO I=1,ILEN
         DO J=1,JLEN
           CAPE3(I,J)   = 0
@@ -89,7 +89,7 @@
       !Calculate mixed layer parcel T and Q
       
 	  
-!$omp  parallel do private (i,j,l,stprs,mxtmp,mxq,mxlvls,lcl00,lcl10,lcl01,clc11,di,dj,i1,i2,part,p1,t1,lr00,lr01,lr10,lr11,cape,lsi)
+!$omp  parallel do private (i,j,l,stprs,mxtmp,mxq,mxlvls,lcl00,lcl10,lcl01,clc11,di,dj,i1,i2,part,p1,t1,lr00,lr01,lr10,lr11,capet,lsit,lfch,lfct,lsir)
       DO I=1,ILEN
         DO J=1,JLEN
           IF (MLCAPE(I,J) .LT. 5) THEN
@@ -131,13 +131,13 @@
 	  DO L=2,LVLS
 	    P1=PLCL   !init P and T at LCL
 	    T1=TLCL
-	    IF (HARR(I,J,L)-SFCARR(I,J) > 3000) THEN  !We stop looping after 3000m
+	    IF (HARR(L,I,J)-SFCARR(I,J) > 3000) THEN  !We stop looping after 3000m
 	      EXIT
 	    END IF
-	    IF (PARR(I,J,L)>PLCL) THEN  !We wont elevate below LCL
+	    IF (PARR(L,I,J)>PLCL) THEN  !We wont elevate below LCL
 	      CYCLE
 	    ELSE
-	      P2=PARR(I,J,L)
+	      P2=PARR(L,I,J)
 	      PR=(P1+P2)/2
 	      !Lookup table for sat LR
 	      LR00=TBLLR(FLOOR(T1),FLOOR(PR))
@@ -153,21 +153,44 @@
 	      ! New parcel temperature
 	      T2=T1-(P2-P1)*TLR
 	      
-	      IF (T2 > TARR(I,J,L) .AND. T1 > TARR(I,J,L-1))   !whole layer is unstable)
+	      IF (T2 > TARR(L,I,J) .AND. T1 > TARR(L-1,I,J))   !whole layer is unstable)
 	      
-	        CAPET=CAPET+((T1-TARR(I,J,L-1)/T1+(T2-TARR(I,J,L))/T2)/2*9.81*(HARR(I,J,L)-HARR(I,J,L-1))
+	        CAPET=CAPET+((T1-TARR(L-1,I,J)/T1+(T2-TARR(L,I,J))/T2)/2*9.81*(HARR(L,I,J)-HARR(L-1,I,J))
 		
-	      ELSE IF(T2 > TARR(I,J,L))              !LFC is whitin layer, 
-	        
+	      ELSE IF(T2 > TARR(L,I,J))              !LFC is whitin layer, 
+	       
+		! Get LFC height
+		LFCH=(TARR(L-1,I,J)-T1)/((TARR(L-1,I,J)-T1)+(T2-TARR(L,I,J)))*(HARR(L,I,J)-HARR(L-1,I,J))+HARR(L-1,I,J)
 		
+		! Then calculate CAPE
+		CAPET=CAPET+((T2-TARR(L,I,J))/TARR(L,I,J)/2*9.81*(HARR(L,I,J)-LFCH))
 		
-		IF(LSIT<(TARR(I,J,L-1))) THEN
-		  LSIT=
+		! Calculate LSI
+		IF(LSIT<(TARR(L-1,I,J)-T1)) THEN
+		  LSIT=TARR(L-1,I,J)-T1
 		END IF
-	      ELSE IF (T2 < TARR(I,J,L) .AND. T1 > TARR(I,J,L-1))    !catched equilibrium level
+		
+	      ELSE IF (T2 < TARR(L,I,J) .AND. T1 > TARR(L-1,I,J))    ! not expected but catched equilibrium level
 	        
+		! Get EL height
+		
+		ELH=(T1-TARR(L-1,I,J))/((T1-TARR(L-1,I,J))+(TARR(L,I,J)-T2))*(HARR(L,I,J)-HARR(L-1,I,J))+HARR(L-1,I,J)
+		
+		! Then calculate CAPE
+		CAPET=CAPET+((T1-TARR(L-1,I,J))/TARR(L-1,I,J)/2*9.81*(ELH-HARR(L,I,J)))
+		
+		! Then LSI
+		IF(LSIT<(TARR(L,I,J)-T2)) THEN
+		  LSIT=TARR(L,I,J)-T2
+		END IF
+		
 	      ELSE         !Only possibility here is layer is fully stable
-	      
+	        
+		LSIR=MIN((TARR(L-1,I,J)-T1),(TARR(L,I,J)-T2)
+
+		IF(LSIT<LSIR) THEN
+		  LSIT=LSIR
+		END IF
 	      
 	      
 	      END IF    
@@ -179,6 +202,8 @@
 	    
 	  END DO
 	  
+	  CAPE3(I,J)=CAPET
+	  LSI(I,J)=LSIT
 	  
 	  
 	  
