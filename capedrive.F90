@@ -1,4 +1,6 @@
-      SUBROUTINE SEVERE(ILEN,JLEN,LVLS,MLCAPE,TARR,QARR,PARR,HARR,SFCARR,CAPE3,LSI)
+      SUBROUTINE SEVERE(ILEN,JLEN,LVLS,MLCAPE, &
+                        &TARR,QARR,PARR,HARR,  &
+                        &SFCARR,CAPE3,LSI)
            
            
            
@@ -14,7 +16,7 @@
 
       !Declare variables
       integer, intent(in) :: ILEN,JLEN,LVLS
-      integer, dimension(LVLS,ILEN,JLEN),intent(in) ::
+      !integer, dimension(LVLS,ILEN,JLEN),intent(in) :: 
       real,    dimension(LVLS,ILEN,JLEN),intent(in) :: TARR,QARR,PARR,HARR  !arrays from args
       real,    dimension(ILEN,JLEN),intent(in) :: MLCAPE,SFCARR
       real,    dimension(ILEN,JLEN),intent(inout) :: CAPE3,LSI    !output arrays
@@ -22,14 +24,17 @@
       real,    dimension(LVLS,ILEN,JLEN) :: TPAR,TKPAR  ! Parcel temp, Parc mx tmp
       real,    dimension(50,318)  ::  TBLLCL
       real,    dimension(100,500) ::  TBLLR
-      real                :: STPRS,MXTMP,MXQ,MR,Y,DJ,DI,I1,I2,PLCL,TLCL,P1,P2,T1,T2,CAPET,LSIT,LFCH,ELH,LSIR,TK,ES,WS,TV,LAT,PA,PB,DENS
+      real :: STPRS,MXTMP,MXQ,MR,Y,DJ,DI,I1,I2,PLCL,TLCL,P1, &
+              &P2,T1,T2,CAPET,LSIT,LFCH,ELH,LSIR,TK,ES,WS,TV,  &
+              &LAT,PA,PB,DENS,TLR,TD,PR
       real,    parameter  ::  A=0.38,B=17.2693882,C=35.86,TFR=273.15
-      integer,    :: MXLVLS,LCL00,LCL10,LCL01,LCL11,I,J,L,LR00,LR01,LR10,LR11
+      integer    :: MXLVLS,LCL00,LCL10,LCL01,LCL11, &
+                     &I,J,L,LR00,LR01,LR10,LR11
 
 
       !Init calculated arrays
 !$omp  parallel do private (L,I,J)
-      DO I=1,ILEN
+      DO I=1, ILEN
         DO J=1,JLEN
           CAPE3(I,J)   = 0
           LSI(I,J)     = 0
@@ -48,7 +53,7 @@
 	  
       !LCL table
 !$omp  parallel do private (i,j,mr,y,td)	  
-	  DO I=1,50
+	  DO I=1, 50
 	    DO J=233,318
 		  MR = REAL(I)/(1-REAL(I))
 		  Y = LOG(MR/A)
@@ -64,7 +69,7 @@
 	  
 	!Saturated lapse rate table
 !$omp  parallel do private (i,j,tk,es,ws,tv,lat,pa,pb,dens)
-	  DO I=-50,50
+	  DO I=-50, 50
 	    DO J=500,1000
 	      TK=REAL(I)+273.15
 	      ES=6.112*EXP(17.67*REAL(I)/(REAL(I)+243.5))
@@ -89,16 +94,18 @@
       !Calculate mixed layer parcel T and Q
       
 	  
-!$omp  parallel do private (i,j,l,stprs,mxtmp,mxq,mxlvls,lcl00,lcl10,lcl01,clc11,di,dj,i1,i2,tlcl,plcl,p1,p2,t1,t2,lr00,lr01,lr10,lr11,capet,lsit,lfch,elh,lsir)
-      DO I=1,ILEN
-        DO J=1,JLEN
+!$omp  parallel do private (i,j,l,stprs,mxtmp,mxq,mxlvls,lcl00,lcl10,lcl01,lcl11,di, &
+!$omp& dj,i1,i2,tlcl,plcl,p1,p2,t1,t2,lr00,lr01,lr10,lr11,capet,lsit,lfch,elh,lsir,tlr,pr)
+
+      DO I = 1, ILEN
+        DO J = 1, JLEN
           IF (MLCAPE(I,J) .LT. 5) THEN
             CYCLE               !There is no 3kmCAPE at GP if there is no CAPE at all
           ENDIF
           STPRS = PARR(1,I,J) - 90000
           MXTMP = 0
           MXQ = 0
-          MXLVLS
+          MXLVLS = 0
           DO L=1,LVLS
             IF (PARR(L,I,J) .LT. STPRS) THEN
               EXIT             !No need to compute above 90mb
@@ -113,8 +120,8 @@
 	  
 	  
 	  !Now lookup table for LCL
-	  LCL00 = TBLLCL(FLOOR(MXQ),FLOOR(MXTMP))
-	  LCL10 = TBLLCL(FLOOR(MXQ)+1),FLOOR(MXTMP)
+          LCL00 = TBLLCL(FLOOR(MXQ),FLOOR(MXTMP))
+          LCL10 = TBLLCL(FLOOR(MXQ)+1,FLOOR(MXTMP))
 	  LCL01 = TBLLCL(FLOOR(MXQ),FLOOR(MXTMP)+1)
 	  LCL11 = TBLLCL(FLOOR(MXQ)+1,FLOOR(MXTMP)+1)
 	  DI = MXQ-REAL(FLOOR(MXQ))
@@ -122,7 +129,7 @@
 	  I1 = LCL00+(LCL10-LCL00)*DI
 	  I2 = LCL01+(LCL11-LCL01)*DI
 	  TLCL = I1+(I2-I1)*DJ
-	  PLCL = 100000 * ((TLCL(I,J)/MXTMP)**3.48)
+	  PLCL = 100000 * ((TLCL/MXTMP)**3.48)
 	  
 	  
 	  !Elevate parcel moist adiabatically from LCL
@@ -153,11 +160,11 @@
 	      ! New parcel temperature
 	      T2=T1-(P2-P1)*TLR
 	      
-	      IF (T2 > TARR(L,I,J) .AND. T1 > TARR(L-1,I,J))   !whole layer is unstable)
+              IF (T2 > TARR(L,I,J) .AND. T1 > TARR(L-1,I,J)) THEN  !whole layer is unstable
 	      
-	        CAPET=CAPET+((T1-TARR(L-1,I,J)/T1+(T2-TARR(L,I,J))/T2)/2*9.81*(HARR(L,I,J)-HARR(L-1,I,J))  !Calculate CAPE
+                CAPET=CAPET+((T1-TARR(L-1,I,J)/T1+(T2-TARR(L,I,J))/T2)/2*9.81*(HARR(L,I,J)-HARR(L-1,I,J)))  !Calculate CAPE
 		
-	      ELSE IF(T2 > TARR(L,I,J))              !LFC is whitin layer,
+	      ELSE IF (T2 > TARR(L,I,J)) THEN             !LFC is whitin layer,
 	      
 		LFCH=(TARR(L-1,I,J)-T1)/((TARR(L-1,I,J)-T1)+(T2-TARR(L,I,J)))*(HARR(L,I,J)-HARR(L-1,I,J))+HARR(L-1,I,J)   ! Get LFC height
 		CAPET=CAPET+((T2-TARR(L,I,J))/TARR(L,I,J)/2*9.81*(HARR(L,I,J)-LFCH))! Then calculate CAPE
@@ -166,7 +173,7 @@
 		  LSIT=TARR(L-1,I,J)-T1
 		END IF
 		
-	      ELSE IF (T2 < TARR(L,I,J) .AND. T1 > TARR(L-1,I,J))    ! not expected but catched equilibrium level
+	      ELSE IF (T2 < TARR(L,I,J) .AND. T1 > TARR(L-1,I,J)) THEN   ! not expected but catched equilibrium level
 	        
 		ELH=(T1-TARR(L-1,I,J))/((T1-TARR(L-1,I,J))+(TARR(L,I,J)-T2))*(HARR(L,I,J)-HARR(L-1,I,J))+HARR(L-1,I,J)  ! Get EL height
 		CAPET=CAPET+((T1-TARR(L-1,I,J))/TARR(L-1,I,J)/2*9.81*(ELH-HARR(L,I,J)))   ! Then calculate CAPE
@@ -177,7 +184,7 @@
 		
 	      ELSE         !Only possibility here is layer is fully stable
 	        
-		LSIR=MIN((TARR(L-1,I,J)-T1),(TARR(L,I,J)-T2)      !Only need to calculate LSI
+		LSIR=MIN((TARR(L-1,I,J)-T1),(TARR(L,I,J)-T2))      !Only need to calculate LSI
 		IF(LSIT<LSIR) THEN
 		  LSIT=LSIR
 		END IF
