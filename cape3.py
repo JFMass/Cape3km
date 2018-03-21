@@ -9,6 +9,8 @@ import numpy.ma as ma
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 import threading
+sys.path.append(os.path.expanduser('~/home/meteo'))
+from cape import cape3
 
 class profObjIdx(object):
 	
@@ -77,7 +79,8 @@ mlcape3 = prof.mlcape3
 sbcape3 = prof.sbcape3
 lsi = prof.lsi
 
-mltmp = modLoop(0,prof.xmax,prof.ymax,prof)
+cape3, lsi = cape3.severe(prof.xmax,prof.ymax,50,prof.maxCape,prof.tmpH,prof.spfhH,prof.hgtH,prof.prsH,prof.grdHgt)
+	
 
 print('now print a beautiful map!')
 
