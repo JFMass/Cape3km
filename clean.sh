@@ -15,7 +15,7 @@ else
     x=0
     while [ $x -lt 24 ]
     do
-    del=`date --date="$deldate + $x hour" +%y%m%d%H`
+    del=`date -d "$deldate $x hour" +%y%m%d%H`
     rm -r "nowcast_$del"
     x=$[$x+1]
     done
