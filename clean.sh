@@ -21,7 +21,7 @@ else
     done
 fi
 
-
+echo $chkdate
 echo "Done deleting date"
 
 
