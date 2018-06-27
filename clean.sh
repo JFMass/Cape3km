@@ -7,7 +7,7 @@ cd html/couches/nowcast
 chkdate=`date --date="2 days ago" +%y%m%d`
 deldate=`date --date="2 days ago" +%y%m%d%H`
 
-if grep -Fxq "$FILENAME" my_list.txt
+if grep -Fxq "$chkdate" archive.txt
 then
     echo "Date is archived, will not delete"
 else
