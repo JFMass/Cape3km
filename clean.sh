@@ -5,17 +5,15 @@
 cd html/couches/nowcast
 
 chkdate=`date --date="2 days ago" +%y%m%d`
-deldate=`date --date="2 days ago" +%y%m%d%H`
 
 if [ ! -z $(grep "$chkdate" archive.txt) ]
 then
     echo "Date is archived, will not delete"
 else
-    cd couches/nowcast
     x=0
     while [ $x -lt 24 ]
     do
-    del=`date --date="$deldate + $x hour" +%y%m%d%H`
+    del=$(date -d "$chkdate 12:00 UTC +$x hour" +%Y%m%d%H)
     rm -r "nowcast_$del"
     x=$[$x+1]
     done
