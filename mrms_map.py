@@ -32,7 +32,7 @@ def makeMap(var, typev, ubrb, vbrb, lats, lons, title, minl, maxl, cmp, tstamp):
 		x, y = m(lons, lats)
 		print('drawing contours')
 		#cs = m.contourf(x,y,var)
-		cs = m.imshow(x,y,var,cmap=cmp,vmin=minl,vmax=maxl,interpolation='bilinear')
+		cs = m.pcolormesh(x,y,var,cmap=cmp,vmin=minl,vmax=maxl,interpolation='bilinear')
 		print('savingfig')
 		plt.savefig('/home/meteo/html/'+title+'01hr.png', dpi=256, transparent=True)
 		plt.close()	
