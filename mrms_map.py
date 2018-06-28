@@ -48,7 +48,7 @@ def makeMap(var, typev, ubrb, vbrb, lats, lons, title, minl, maxl, cmp, tstamp):
 		plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
 		m = Basemap(epsg=3857,llcrnrlon=(360-84.375),llcrnrlat=40.979898069620134,urcrnrlon=(360-67.5),urcrnrlat=48.922499263758255,resolution='i')
 		x, y = m(lons, lats)
-		cs = m.contourf(x,y,var,maxl-minl,cmap=cmp,vmin=minl,vmax=maxl)
+		cs = m.contourf(x,y,var,1000,cmap=cmp,vmin=minl,vmax=maxl)
 		plt.savefig('/home/meteo/html/'+title+'01mr.png', dpi=256, transparent=True)
 		plt.close()
 
