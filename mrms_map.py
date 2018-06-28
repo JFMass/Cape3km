@@ -58,6 +58,7 @@ print('Setting lats and lon')
 lat, lon = hsr[1].latlons()
 print('setting value')
 rad = hsr[1].values
+print(rad.shape)
 print('Making map')
 makeMap(rad,'filled','x','x',lat,lon,'MRMS_Composite',0,70,'xx','0000')
 
