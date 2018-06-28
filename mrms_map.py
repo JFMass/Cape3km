@@ -12,7 +12,7 @@ sys.path.append(os.path.expanduser('~/home/meteo'))
 from matplotlib.colors import LinearSegmentedColormap
 from scipy.ndimage.filters import gaussian_filter
 
-def makeMap(var, typev, ubrb, vbrb, lats, lons, title, minl, maxl, cmap, tstamp):
+def makeMap(var, typev, ubrb, vbrb, lats, lons, title, minl, maxl, cmp, tstamp):
 		
 		#minl is levels interval if type is cont
 
@@ -32,7 +32,7 @@ def makeMap(var, typev, ubrb, vbrb, lats, lons, title, minl, maxl, cmap, tstamp)
 		x, y = m(lons, lats)
 		print('drawing contours')
 		#cs = m.contourf(x,y,var)
-		cs = m.imshow(x,y,var,cmap=cmap,vmin=minl,vmax=maxl,interpolation='bilinear')
+		cs = m.imshow(x,y,var,cmap=cmp,vmin=minl,vmax=maxl,interpolation='bilinear')
 		print('savingfig')
 		plt.savefig('/home/meteo/html/'+title+'01hr.png', dpi=256, transparent=True)
 		plt.close()	
@@ -48,7 +48,7 @@ def makeMap(var, typev, ubrb, vbrb, lats, lons, title, minl, maxl, cmap, tstamp)
 		plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
 		m = Basemap(epsg=3857,llcrnrlon=(360-84.375),llcrnrlat=40.979898069620134,urcrnrlon=(360-67.5),urcrnrlat=48.922499263758255,resolution='i')
 		x, y = m(lons, lats)
-		cs = m.contourf(x,y,var,maxl-minl,cmap=cmap,vmin=minl,vmax=maxl)
+		cs = m.contourf(x,y,var,maxl-minl,cmap=cmp,vmin=minl,vmax=maxl)
 		plt.savefig('/home/meteo/html/'+title+'01mr.png', dpi=256, transparent=True)
 		plt.close()
 
