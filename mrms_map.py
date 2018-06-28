@@ -49,8 +49,8 @@ def makeMap(var, typev, ubrb, vbrb, lats, lons, title, minl, maxl, cmap, tstamp)
 		plt.close()
 
 hsr = pygrib.open('MRMS_SeamlessHSR.latest.grib2')
-lat, lon = hsr[0].latlons()
-rad = hsr[0].values
+lat, lon = hsr[1].latlons()
+rad = hsr[1].values
 makeMap(rad,'filled','x','x',lat,lon,'MRMS_Composite',0,70,'xx','0000')
 
     
