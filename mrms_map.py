@@ -48,9 +48,13 @@ def makeMap(var, typev, ubrb, vbrb, lats, lons, title, minl, maxl, cmap, tstamp)
 		plt.savefig('/home/meteo/nowcast/imgs/nowcast_'+tstamp+'/'+title+'01mr.png', dpi=256, transparent=True)
 		plt.close()
 
+print('Opening grib file')
 hsr = pygrib.open('MRMS_SeamlessHSR.latest.grib2')
+print('Setting lats and lon')
 lat, lon = hsr[1].latlons()
+print('setting value')
 rad = hsr[1].values
+print('Making map')
 makeMap(rad,'filled','x','x',lat,lon,'MRMS_Composite',0,70,'xx','0000')
 
     
