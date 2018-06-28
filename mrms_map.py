@@ -20,7 +20,7 @@ def makeMap(var, typev, ubrb, vbrb, lats, lons, title, minl, maxl, cmap, tstamp)
 
 		#hi res
 		#plt.figure(figsize=(48, 32), dpi=256,frameon=False)
-		fig = plt.figure(figsize=(48, 32), dpi=256,frameon=False)
+		fig = plt.figure(figsize=(24, 16), dpi=256,frameon=False)
 		ax = fig.gca()
 		ax.axis('off')
 		ax.set_xlim([0, 1])
