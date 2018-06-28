@@ -9,7 +9,6 @@ import numpy.ma as ma
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 sys.path.append(os.path.expanduser('~/home/meteo'))
-from cape import cape3
 from matplotlib.colors import LinearSegmentedColormap
 from scipy.ndimage.filters import gaussian_filter
 
