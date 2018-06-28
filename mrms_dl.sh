@@ -11,6 +11,6 @@ wget http://mrms.ncep.noaa.gov/data/2D/SeamlessHSR/MRMS_SeamlessHSR.latest.grib2
 
 gunzip MRMS_SeamlessHSR.latest.grib2.gz
 
-
+grib2/wgrib2/wgrib2 MRMS_SeamlessHSR.latest.grib2 -small_grib 
 
 
