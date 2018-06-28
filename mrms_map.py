@@ -20,7 +20,7 @@ def makeMap(var, typev, ubrb, vbrb, lats, lons, title, minl, maxl, cmap, tstamp)
 
 		#hi res
 		#plt.figure(figsize=(48, 32), dpi=256,frameon=False)
-		fig = plt.figure(figsize=(12, 8), dpi=256,frameon=False)
+		fig = plt.figure(figsize=(48, 32), dpi=256,frameon=False)
 		ax = fig.gca()
 		ax.axis('off')
 		ax.set_xlim([0, 1])
@@ -34,7 +34,7 @@ def makeMap(var, typev, ubrb, vbrb, lats, lons, title, minl, maxl, cmap, tstamp)
 		cs = m.contourf(x,y,var)
 		#cs = m.contourf(x,y,var,maxl-minl,cmap=cmap,vmin=minl,vmax=maxl)
 		print('savingfig')
-		plt.savefig('/home/meteo/nowcast/imgs/nowcast_'+tstamp+'/'+title+'01hr.png', dpi=256, transparent=True)
+		plt.savefig('/home/meteo/html/nowcast_'+tstamp+'/'+title+'01hr.png', dpi=256, transparent=True)
 		plt.close()	
 		#del fig
 		
@@ -49,7 +49,7 @@ def makeMap(var, typev, ubrb, vbrb, lats, lons, title, minl, maxl, cmap, tstamp)
 		m = Basemap(epsg=3857,llcrnrlon=(360-84.375),llcrnrlat=40.979898069620134,urcrnrlon=(360-67.5),urcrnrlat=48.922499263758255,resolution='i')
 		x, y = m(lons, lats)
 		cs = m.contourf(x,y,var,maxl-minl,cmap=cmap,vmin=minl,vmax=maxl)
-		plt.savefig('/home/meteo/nowcast/imgs/nowcast_'+tstamp+'/'+title+'01mr.png', dpi=256, transparent=True)
+		plt.savefig('/home/meteo/html/nowcast_'+tstamp+'/'+title+'01mr.png', dpi=256, transparent=True)
 		plt.close()
 
 print('Opening grib file')
