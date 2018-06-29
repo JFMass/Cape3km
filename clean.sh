@@ -8,7 +8,15 @@ chkdate=`date --date="2 days ago" +%y%m%d`
 
 if [ ! -z $(grep "$chkdate" archive.txt) ]
 then
-    echo "Date is archived, will not delete"
+    echo "Date is archived, will not delete but move to archives"
+    mkdir /home/meteo/html/models/archives/"$chkdate"
+    x=0
+    while [ $x -lt 24 ]
+    do
+    del=$(date -d "$chkdate 12:00 UTC +$x hour" +%Y%m%d%H)
+    mv "nowcast_$del" /home/meteo/html/models/archives/"$chkdate"/"$del"
+    x=$[$x+1]
+    done
 else
     x=0
     while [ $x -lt 24 ]
