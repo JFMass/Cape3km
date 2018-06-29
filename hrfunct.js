@@ -43,12 +43,12 @@ function addclickhandler(link, i)
 function setSlider(hours,value)
 {
 	var lasthour = hours.length -1;
-    var actualval = (value == undefined ? 0 : value);
+    var actualval = (value == undefined ? 1 : value);
  
 	$("#slider").slider(
 		{
 			step:1,
-			min:0,
+			min:1,
 			max:lasthour,
 			value:actualval,
 			change: function(event,ui)
