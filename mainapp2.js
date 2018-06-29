@@ -9,7 +9,7 @@ var drawLayer;
 var maxF = 10;
 var lat = 38.5;
 var lon = -87;
-var fzoom = 10;
+var fzoom = 8;
 var barbs = "10wbrb";
 var cont = "mslpct";
 var prod = "2MTMP";
@@ -225,8 +225,8 @@ $(function() {
     		{
     			center: ol.proj.fromLonLat([-75.5255,45.498]),
 				zoom:8,
-				maxZoom:12,
-				minZoom:5,
+				maxZoom:10,
+				minZoom:8,
 				projection:"EPSG:3857",
   		//		extent:[e_minx,e_miny,e_maxx,e_maxy],
   				loadTilesWhileInteracting:true,
