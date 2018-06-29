@@ -79,6 +79,7 @@ function ChangeModel(newrun)
 {
 	modelrun = newrun;
 	ffs = 01;
+	ChangeF(1);
 	var newurl = "http://nowcast.quebecvortex.com/couches/"+ model + "/" + newrun + "/" + ffs + "/" + prod + "/{z}/{x}/{y}.png";
 	var source = new ol.source.XYZ({ url:newurl, crossOrigin:"anonymous"});	 
 	currentProdHR.setSource(source);
