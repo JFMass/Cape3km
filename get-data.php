@@ -1,7 +1,7 @@
 <?php
 	//require_once("../../login/config.php");
 //	if(!$user->is_logged_in()) trigger_error("User not logged in !",E_USER_ERROR); 
-	$serverpath = "/home/meteo/html/couches/";
+	$serverpath = "/home/meteo/html/models/";
 
 	// GET ALL MODELS IN THE MODELS FOLDER
 	$listmodels = glob($serverpath . "*", GLOB_ONLYDIR );
