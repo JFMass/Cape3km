@@ -80,7 +80,7 @@ function ChangeModel(newrun)
 	modelrun = newrun;
 	ffs = 01;
 	ChangeF(1);
-	var newurl = "http://nowcast.quebecvortex.com/couches/"+ model + "/" + newrun + "/" + ffs + "/" + prod + "/{z}/{x}/{y}.png";
+	var newurl = "http://nowcast.quebecvortex.com/models/"+ model + "/" + newrun + "/" + ffs + "/" + prod + "/{z}/{x}/{y}.png";
 	var source = new ol.source.XYZ({ url:newurl, crossOrigin:"anonymous"});	 
 	currentProdHR.setSource(source);
 	
@@ -93,7 +93,7 @@ function ChangeModel(newrun)
 function ChangeBarb(newbarb)
 {
 	barbs = newbarb;
-	var newurl = "http://nowcast.quebecvortex.com/couches/"+model+"/"+modelrun+"/"+ffs+"/"+newbarb+"/{z}/{x}/{y}.png"
+	var newurl = "http://nowcast.quebecvortex.com/models/"+model+"/"+modelrun+"/"+ffs+"/"+newbarb+"/{z}/{x}/{y}.png"
 	var source = new ol.source.XYZ({ url:newurl, crossOrigin:"anonymous"});	 
 	barbOverlay.setSource(source);
 	Cookies.set("barbs", newbarb, {expires:9999});
@@ -102,7 +102,7 @@ function ChangeBarb(newbarb)
 function ChangeCont(newcont)
 {
 	cont = newcont;
-	var newurl = "http://nowcast.quebecvortex.com/couches/"+model+"/"+modelrun+"/"+ffs+"/"+newcont+"/{z}/{x}/{y}.png"
+	var newurl = "http://nowcast.quebecvortex.com/models/"+model+"/"+modelrun+"/"+ffs+"/"+newcont+"/{z}/{x}/{y}.png"
 	var source = new ol.source.XYZ({ url:newurl, crossOrigin:"anonymous"});	 
 	contOverlay.setSource(source);
 	Cookies.set("conts", newcont, {expires:9999});
@@ -111,7 +111,7 @@ function ChangeCont(newcont)
 
 function ChangeProd(title,newprod){
 	prod = newprod;
-	var newurl = "http://nowcast.quebecvortex.com/couches/"+ model + "/" + modelrun + "/" + ffs + "/" + newprod + "/{z}/{x}/{y}.png";
+	var newurl = "http://nowcast.quebecvortex.com/models/"+ model + "/" + modelrun + "/" + ffs + "/" + newprod + "/{z}/{x}/{y}.png";
 	var source = new ol.source.XYZ({ url:newurl, crossOrigin:"anonymous"});	 
 	currentProdHR.setSource(source);
 	
@@ -148,7 +148,7 @@ function ChangeF(newf)
 	}
 	
 	ffs = newval;
-	var newurl = "http://nowcast.quebecvortex.com/couches/"+ model + "/" + modelrun + "/" + ffs + "/" + prod + "/{z}/{x}/{y}.png";
+	var newurl = "http://nowcast.quebecvortex.com/models/"+ model + "/" + modelrun + "/" + ffs + "/" + prod + "/{z}/{x}/{y}.png";
 	var source = new ol.source.XYZ({ url:newurl, crossOrigin:"anonymous"});	 
 	currentProdHR.setSource(source);
 	ChangeBarb(barbs);
